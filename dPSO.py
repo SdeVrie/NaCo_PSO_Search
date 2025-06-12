@@ -6,6 +6,13 @@ import dPSO_util
 
 class Particle:
     def __init__(self, x, y, p_radius):
+        """This is the initialization function of the Particle class
+
+        Args:
+            x (float): coordinate X
+            y (float): coordinate Y
+            p_radius (int): radius if the particle
+        """
         self.x = x
         self.y = y
         self.vx = 0
@@ -16,15 +23,35 @@ class Particle:
         self.radius = p_radius
     
     def setcoords(self, x, y):
+        """Setting the corodinates of the particle
+
+        Args:
+            x (float): New x coordinate
+            y (float): New y coordinate
+        """
         self.x = x
         self.y = y
 
     def setVelocity(self, vx, vy):
+        """Function for setting the velocity of the particle
+
+        Args:
+            vx (float): new x velocity
+            vy (float): new y coordinate
+        """
         self.vx = vx
         self.vy = vy
 
 class Swarm:
     def __init__(self, agent, grid, num_particles=10, sigma=3):
+        """Initialization function of the Swarm class
+
+        Args:
+            agent (Agent): Agent objects from class Agent in Continuous_grid.py
+            grid (Grid): Instance of the grid
+            num_particles (int): number of particles. Defaults to 10.
+            sigma (int): representen the standard deviation for the nromal distribution. Defaults to 3.
+        """
         self.agent = agent
         self.particles = []
         self.gx = agent.x
@@ -34,6 +61,12 @@ class Swarm:
         self.initialize_particles(grid, num_particles)
 
     def initialize_particles(self, grid, num_particles):
+        """Function that initializes the particles
+
+        Args:
+            grid (Grid): Instance of the grid
+            num_particles (int): number of particles_
+        """
         #self.agent.grid = None  # will be set externally
         attempts = 0
         while len(self.particles) < num_particles and attempts < num_particles * 10:
@@ -44,22 +77,25 @@ class Swarm:
                 self.particles.append(Particle(x, y, self.agent.radius))
             attempts += 1
 
-    def update_particles(self, grid, all_swarms, V_LIMIT, goal_list_x, goal_list_y, c1, c2, c3=1, c4=1, w=0.5, max_dis = 8):
-        for p in self.particles:
-#             distances = [
-#     math.sqrt((p.x - tx)**2 + (p.y - ty)**2)
-#     for target in grid.targets if target is not None
-#     for tx, ty, _ in [target]
-# ]
-#             fitness = min(distances) if distances else np.inf
+    def update_particles(self, grid, V_LIMIT, goal_list_x, goal_list_y, c1, c2, c3=1, c4=1, w=0.5, max_dis = 8):
+        """Function that updates the particle function on the grid
 
-#             if fitness < p.fitness:
-#                 p.pbest_x, p.pbest_y = p.x, p.y
-#                 p.fitness = fitness
-#                 if fitness < self.gbest_value:
-#                     self.gbest_x, self.gbest_y = p.x, p.y
-#                     self.gbest_value = fitness
-            
+        Args:
+            grid (Grid): instance of the grid
+            V_LIMIT (int): Maximum velocity of the particle
+            goal_list_x (list): list containing the x coordinates of the targets
+            goal_list_y (list): list containing the y coordinates of the targets
+            c1 (float): learning constant
+            c2 (float): learning constant
+            c3 (int, optional): learning constant. Defaults to 1.
+            c4 (int, optional): learning constant. Defaults to 1.
+            w (float, optional): inertia weight. Defaults to 0.5.
+            max_dis (int, optional): Used for computing the distance between the agent and the particle. Defaults to 8.
+
+        Returns:
+            float: the coordinate of the personal best
+        """
+        for p in self.particles:    
             r1 = random.uniform(0, 1)
             r2 = random.uniform(0, 1)
             r3 = random.uniform(0, 1)
@@ -76,22 +112,6 @@ class Swarm:
                 v_x += c3 * r3 * (1 + dis - max_dis) * ((self.agent.x - p.x)/dis)
                 v_y += c3 * r3 * (1 + dis - max_dis) * ((self.agent.y - p.y)/dis)
 
-            # for other in self.particles:
-            #     if other == p: continue
-            #     d = math.hypot(p.x - other.x, p.y - other.y)
-            #     if d == 0: continue
-            #     rep = 1 / (1 + (d / 1.5)**2)
-            #     v_x += c3 * r3 * (p.x - other.x) * rep
-            #     v_y += c3 * r3 * (p.y - other.y) * rep
-
-            # for swarm in all_swarms:
-            #     if swarm == self: continue
-            #     d = math.hypot(p.x - swarm.agent.x, p.y - swarm.agent.y)
-            #     rep = 1 / (1 + (d / 2.0)**2)
-            #     v_x += c4 * r4 * (p.x - swarm.agent.x) * rep
-            #     v_y += c4 * r4 * (p.y - swarm.agent.y) * rep
-
-            # Apply and check for collisions
             v_x *= 100
             v_y *= 100
             v_x, v_y = dPSO_util.Limit_maxVelocity(v_x, v_y, V_LIMIT*2)          
@@ -104,43 +124,18 @@ class Swarm:
             p.setVelocity(v_x, v_y)
 
             self.gbest, self.gx, self.gy = dPSO_util.update_GbestPbest(p, self.gx, self.gy, self.gbest, goal_list_x, goal_list_y)
-            # new_x = p.x + vel_x
-            # new_y = p.y + vel_y
-            # if not dPSO_util.is_collision(grid, new_x, new_y, grid.agent_radius):
-            #     p.vx, p.vy = vel_x, vel_y
-            #     p.x, p.y = new_x, new_y
-            # else:
-            #     # Small random movement to escape stagnation
-            #     angle = random.uniform(0, 2 * math.pi)
-            #     p.vx = math.cos(angle) * 0.5
-            #     p.vy = math.sin(angle) * 0.5
-            #     alt_x = p.x + p.vx
-            #     alt_y = p.y + p.vy
-            #     if not dPSO_util.is_collision(grid, alt_x, alt_y, grid.agent_radius):
-            #         p.x, p.y = alt_x, alt_y
-            #     else:
-            #         p.vx = p.vy = 0
-        
+
         return self.gx, self.gy
 
-    def update_agent_position(self, V_LIMIT):
-        avg_x = np.mean([p.x for p in self.particles])
-        avg_y = np.mean([p.y for p in self.particles])
-        print(avg_x, avg_y)
-        print(self.agent.x, self.agent.y)
-        v_x = avg_x - self.agent.x
-        v_y = avg_y - self.agent.y
-        print(v_x, v_y)
-        v_x, v_y = dPSO_util.Limit_maxVelocity(v_x, v_y, V_LIMIT)
-        print(v_x, v_y)
-        print()
-        if not move(self, self.agent, v_x, v_y, grid):
-            new_x, new_y, v_x, v_y = dPSO_util.avoidObstacle(self.agent, v_x, v_y, V_LIMIT, grid)
-            self.agent.setcoords(new_x, new_y)
-
-
 def check_target_detection(grid):
-    """Check if an agent has detected any target"""
+    """Check if an agent has detected any target
+
+    Args:
+        grid (Grid): Instance of Grid
+
+    Returns:
+        Bool: True if a target is detected, False otherwise. 
+    """
     for agent in grid.agents:
         for i, target in enumerate(grid.targets):
             if target is None:  # Skip already found targets
@@ -161,7 +156,17 @@ def check_target_detection(grid):
     return False
 
 def move(swarm, agent, dx, dy, grid):
-    """Move agent by (dx,dy) if no collision"""
+    """Move agent by (dx,dy) if there is no collision
+
+    Args:
+        agent (Agent): instance of an Agent
+        dx (float): proposed new x location
+        dy (float): proposed new y location
+        grid (Grid): instance of the grid
+
+    Returns:
+        Bool: True if the coordinates are suitable, else False
+    """
     new_x = agent.x + dx
     new_y = agent.y + dy
     # Check if new position would cause collision
@@ -220,12 +225,6 @@ def dPSO(grid, max_steps = 1000, step_size = 2):
 
             swarm.agent.setVelocity(v_x, v_y)
 
-            # # deal root out of map
-            # if (agent.x < 0 or agent.y < 0 or agent.x > SIDE or agent.y > SIDE):
-            #     agent.x = agent.x - v_x
-            #     agent.y = agent.y - v_y
-            #     agent.Vx = -agent.Vx
-            #     agent.Vy = -agent.Vy
 
             spx, spy = swarm.update_particles(grid, swarms, V_LIMIT, goal_list_x, goal_list_y, c1, c2, w = w)
 
@@ -245,14 +244,6 @@ def dPSO(grid, max_steps = 1000, step_size = 2):
             # update Pbest & Gbest
             gbest, gx, gy = dPSO_util.update_GbestPbest(swarm.agent, gx, gy, gbest, goal_list_x, goal_list_y)
 
-    # for steps in range(max_steps):
-
-    #     w = w_upper - (steps / max_steps) * (w_upper - w_lower)
-
-    #     for swarm in swarms:
-    #         swarm.update_particles(grid, swarms, V_LIMIT, goal_list_x, goal_list_y, c1, c2, w = w)
-    #         swarm.update_agent_position(V_LIMIT)
-    #         grid.pos_change(swarm.particles)
 
         grid.pos_change()
         if check_target_detection(grid):

@@ -4,7 +4,14 @@ import math
 import numpy as np
 
 def check_target_detection(grid):
-    """Check if an agent has detected any target"""
+    """Check if an agent has detected any target
+
+    Args:
+        grid (Grid): Instance of Grid
+
+    Returns:
+        Bool: True if a target is detected, False otherwise. 
+    """
     for agent in grid.agents:
         for i, target in enumerate(grid.targets):
             if target is None:  # Skip already found targets
@@ -25,7 +32,17 @@ def check_target_detection(grid):
     return False
 
 def is_collision(grid, x, y, radius):
-    """Check if a point (x,y) with given radius collides with any obstacle"""
+    """Check if a point (x,y) with given radius collides with any obstacle
+
+    Args:
+        grid (Grid): instance of Grid
+        x (float): x coordinate of the agent
+        y (float): y coordinate of the agent
+        radius (int): sensing range of the agent
+
+    Returns:
+        Bool: True if there is a collision, false otherwise
+    """
     # Check bounds
     if x - radius < 0 or x + radius > grid.width or y - radius < 0 or y + radius > grid.height:
         return True
@@ -47,11 +64,28 @@ def is_collision(grid, x, y, radius):
     return False
 
 def divisors(n):
+    """function that returns a list of all positive integers that divide a given number n evenly
+    Args:
+        n (int): arbitrary integer value
+
+    Returns:
+        list: all positive integers that divide a given number n evenly
+    """
     return [i for i in range(1, n + 1) if n % i == 0]
 
 
 def move(agent, dx, dy, grid):
-    """Move agent by (dx,dy) if no collision"""
+    """Move agent by (dx,dy) if there is no collision
+
+    Args:
+        agent (Agent): instance of an Agent
+        dx (float): proposed new x location
+        dy (float): proposed new y location
+        grid (Grid): instance of the grid
+
+    Returns:
+        Bool: True if the coordinates are suitable, else False
+    """
     new_x = agent.x + dx
     new_y = agent.y + dy
     # Check if new position would cause collision
@@ -64,6 +98,18 @@ def move(agent, dx, dy, grid):
     return False
 
 def exhaustive_search(grid, max_steps=1000, step_size=2):
+    """Function that controls the process of exhaustive search
+
+    Args:
+        grid (Grid): Instance of the grid
+        max_steps (int): maximum amount of steps. Defaults to 1000.
+        step_size (int): maximum step size. Defaults to 2.
+
+    Returns:
+        int: number of steps needed
+        int: number of targets found
+        float: distance covered by all the agents
+    """
     total_targets = len(grid.targets)
     targets_found = 0
     steps = 0

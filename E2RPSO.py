@@ -1,3 +1,6 @@
+# Adapted from https://github.com/xrl2408/E2RPSO/tree/main
+# Original author: xrl2408
+
 import math
 
 import random
@@ -20,7 +23,14 @@ function E2RPSO
 '''
 
 def check_target_detection(grid):
-    """Check if an agent has detected any target"""
+    """Check if an agent has detected any target
+
+    Args:
+        grid (Grid): Instance of Grid
+
+    Returns:
+        Bool: True if a target is detected, False otherwise. 
+    """
     for agent in grid.agents:
         for i, target in enumerate(grid.targets):
             if target is None:  # Skip already found targets
@@ -41,7 +51,17 @@ def check_target_detection(grid):
     return False
 
 def move(agent, dx, dy, grid):
-    """Move agent by (dx,dy) if no collision"""
+    """Move agent by (dx,dy) if there is no collision
+
+    Args:
+        agent (Agent): instance of an Agent
+        dx (float): proposed new x location
+        dy (float): proposed new y location
+        grid (Grid): instance of the grid
+
+    Returns:
+        Bool: True if the coordinates are suitable, else False
+    """
     new_x = agent.x + dx
     new_y = agent.y + dy
     # Check if new position would cause collision
@@ -54,6 +74,18 @@ def move(agent, dx, dy, grid):
     return False
 
 def E2RPSO(grid, max_steps = 1000, step_size = 2):
+    """Function controlling the E2RPSO process
+
+    Args:
+        grid (Grid): Instance of the grid
+        max_steps (int): maximum amount of steps. Defaults to 1000.
+        step_size (int): maximum step size. Defaults to 2.
+
+    Returns:
+        int: number of steps needed
+        int: number of targets found
+        float: distance covered by all the agents
+    """
     total_targets = len(grid.targets)
     targets_found = 0
     # Side length of square map

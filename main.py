@@ -36,12 +36,12 @@ with open('results_table.csv', 'w', newline='') as csvfile:
     # Write header row
     writer.writerow(['Algorithm', 'Targets_Found', 'Total_Distance', 'Steps', 'Side', 'Seed', 'Obstacles', 'Agents', 'Targets'])
 
-    for side in SIDE:
-        for seed in seeds:
-            for ob in obstacles:
-                for an in agent_num:
-                    for nt in num_targets:
-                        for algo_name, algo_func in algorithms:
+    for side in SIDE: #loop over different grid sizes
+        for seed in seeds: #loop over different seeds
+            for ob in obstacles: #loop over different amount of obstacles
+                for an in agent_num: #loop over different number of agents
+                    for nt in num_targets: #loop over different number of targets
+                        for algo_name, algo_func in algorithms: #loop over the differetn search algorithms
                             grid = Grid(side, ob, nt, an, agent_half_size, agent_radius, obstacle_half_size, target_half_size, seed)
                             steps, targets_found, total_distance = algo_func(grid, T, STEP_SIZE)
                             

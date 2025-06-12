@@ -2,6 +2,17 @@ import random
 import math
 
 def getFitness(gx, gy, x, y):
+    """Function that computes the fitness function
+
+    Args:
+        gx (float): x coordinate of the desired state
+        gy (float): y coordinate of the desired state
+        x (float): x coordinate of the agent
+        y (float): y coordinate of the agent
+
+    Returns:
+        float: value of fitness
+    """
     dis = math.sqrt((gx - x) * (gx - x) + (gy - y) * (gy - y))
     sq = math.sqrt(dis)
 
@@ -9,6 +20,22 @@ def getFitness(gx, gy, x, y):
 
 # update Gbest Pbest
 def update_GbestPbest(r, Gx, Gy, Gbest, goal_list_x, goal_list_y):
+    """Updates the personal best of an agent and the global best across all agents, 
+    based on current fitness compared to stored values
+
+    Args:
+        r (Agent): instance of Agent
+        Gx (float): x coordinate of the global best
+        Gy (float): y coorindate of the global best
+        Gbest (float): value of the global best
+        goal_list_x (list): list containing the x coordinates of all goals
+        goal_list_y (_type_): list containing the y coordinates of all goals
+
+    Returns:
+        float: x coordinate of the global best
+        float: y coorindate of the global best
+        float: value of the global best
+    """
     gx = Gx
     gy = Gy
     gbest = Gbest
@@ -30,6 +57,17 @@ def update_GbestPbest(r, Gx, Gy, Gbest, goal_list_x, goal_list_y):
 
 # limit max velocity
 def Limit_maxVelocity(v_x, v_y, v_limit):
+    """Function that checks if the current velocity exceeds the limit and clips it if it does
+
+    Args:
+        v_x (float): Current x velocity
+        v_y (float): Current y velocity
+        v_limit (float): maximum value the velocity may have. 
+
+    Returns:
+        float: checked velocity for x
+        float: checked velocity for y
+    """
     if abs(v_x) > v_limit / 2 or abs(v_y) > v_limit / 2:
         k = v_x * v_x + v_y * v_y
         k = math.sqrt(k)
@@ -38,6 +76,18 @@ def Limit_maxVelocity(v_x, v_y, v_limit):
     return v_x, v_y
 
 def Unit_speed(r, gx, gy):
+    """Compute normalized directional vectors toward the agent's personal best
+    and the global best from its current position.
+
+    Args:
+        r (Agent): instance of Agent
+        gx (float): x coordinate of the global best
+        gy (float): y cooridnate of the global best
+
+    Returns:
+        tuple: Unit vectors toward personal best (xp, yp) and global best (xg, yg).
+  
+    """
     xp = r.px - r.x
     xg = gx - r.x
     yp = r.py - r.y
@@ -53,7 +103,17 @@ def Unit_speed(r, gx, gy):
     return xp, yp, xg, yg
 
 def is_collision(grid, x, y, radius):
-    """Check if a point (x,y) with given radius collides with any obstacle"""
+    """Check if a point (x,y) with given radius collides with any obstacle
+
+    Args:
+        grid (Grid): instance of Grid
+        x (float): x coordinate of the agent
+        y (float): y coordinate of the agent
+        radius (int): sensing range of the agent
+
+    Returns:
+        Bool: True if there is a collision, false otherwise
+    """
     # Check bounds
     if x - radius < 0 or x + radius > grid.width or y - radius < 0 or y + radius > grid.height:
         return True
@@ -75,7 +135,18 @@ def is_collision(grid, x, y, radius):
     return False
 
 def is_collision_agents(agent_self, grid, x, y, radius):
-    """Check if a point (x,y) with given radius collides with any obstacle"""
+    """Check if a point (x,y) with given radius collides with any agent
+
+    Args:
+        agent_self (Agent): instacne of class Agent
+        grid (Grid): instance of a grid
+        x (float): x coordinate of the agent
+        y (float): y coordinate of the agent
+        radius (int): sensing range of the agent
+
+    Returns:
+        Bool: True if there is a collision, false otherwise
+    """
     # Check bounds
     if x - radius < 0 or x + radius > grid.width or y - radius < 0 or y + radius > grid.height:
         return True
@@ -102,7 +173,18 @@ def is_collision_agents(agent_self, grid, x, y, radius):
     return False
 
 def is_collision_particles(swarm, particle_self, grid, x, y, radius):
-    """Check if a point (x,y) with given radius collides with any obstacle"""
+    """Check if a point (x,y) with given radius collides with any particle
+
+    Args:
+        agent_self (Particle): instacne of class Particle
+        grid (Grid): instance of a grid
+        x (float): x coordinate of the particle
+        y (float): y coordinate of the particle
+        radius (int): sensing range of the particle
+
+    Returns:
+        Bool: True if there is a collision, false otherwise
+    """
     # Check bounds
     if x - radius < 0 or x + radius > grid.width or y - radius < 0 or y + radius > grid.height:
         return True
@@ -128,6 +210,18 @@ def is_collision_particles(swarm, particle_self, grid, x, y, radius):
 
 # Avoid obstacle
 def avoidObstacle(r, v_x, v_y, V_LIMIT, grid):
+    """Function that computes how to avoid the obstacle
+
+    Args:
+        r (Agent): instance of Agent
+        v_x (float): x velocity
+        v_y (float): y velocity
+        V_LIMIT (float): maximum velocity
+        grid (Grid): instance of a grid
+
+    Returns:
+        float: New computed values to avoid obstacles
+    """
     # x,y direction
     angle_list = [10, -10, 20, -20, 30, -30, 40, -40, 50, -50, 60, -60, 70, -70, 80, -80, 90, -90, 100, -100,
                     110, -110, 120, -120, 130, -130, 140, -140, 150, -150, 160, -160, 170, -170, 180, -180]
@@ -146,6 +240,20 @@ def avoidObstacle(r, v_x, v_y, V_LIMIT, grid):
     return r.x, r.y, 0.0, 0.0
 
 def init_dPSO(step_size,grid):
+    """Init function for the DPSO algorithm
+
+    Args:
+        step_size (float): Maximum velocity
+        grid (Grid): instance of Grid
+
+    Returns:
+            list: List of agent objects after initialization.
+            list: List of x-coordinates of goal positions.
+            list: List of y-coordinates of goal positions.
+            float: x-coordinate of the global best position.
+            float: y-coordinate of the global best position.
+            float: Best (lowest) fitness value found globally.
+    """
 
     for agent in grid.agents:
         agent.setVelocity(random.uniform(0, step_size), random.uniform(-step_size, step_size))

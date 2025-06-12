@@ -1,21 +1,22 @@
+# Adapted from https://github.com/xrl2408/E2RPSO/tree/main
+# Original author: xrl2408
+
 import random
 import math
 import numpy as np
 
-'''
-function getFitness
-    calculate the fitness value in this x,y position
-
-    input: 
-    gx      : x position of one goal
-    gy      : y position of one goal
-    x       : x positoin 
-    y       : y position
-
-    return:
-    the Square root of distance between x,y and gx,gy
-'''
 def getFitness(gx, gy, x, y):
+    """Function that computes the fitness function
+
+    Args:
+        gx (float): x coordinate of the desired state
+        gy (float): y coordinate of the desired state
+        x (float): x coordinate of the agent
+        y (float): y coordinate of the agent
+
+    Returns:
+        float: value of fitness
+    """
     dis = math.sqrt((gx - x) * (gx - x) + (gy - y) * (gy - y))
     sq = math.sqrt(dis)
 
@@ -23,6 +24,22 @@ def getFitness(gx, gy, x, y):
 
 # update Gbest Pbest
 def update_GbestPbest(r, Gx, Gy, Gbest, goal_list_x, goal_list_y, t):
+    """Updates the personal best of an agent and the global best across all agents, 
+    based on current fitness compared to stored values
+
+    Args:
+        r (Agent): instance of Agent
+        Gx (float): x coordinate of the global best
+        Gy (float): y coorindate of the global best
+        Gbest (float): value of the global best
+        goal_list_x (list): list containing the x coordinates of all goals
+        goal_list_y (_type_): list containing the y coordinates of all goals
+
+    Returns:
+        float: x coordinate of the global best
+        float: y coorindate of the global best
+        float: value of the global best
+    """
     gx = Gx
     gy = Gy
     gbest = Gbest
@@ -46,6 +63,17 @@ def update_GbestPbest(r, Gx, Gy, Gbest, goal_list_x, goal_list_y, t):
 
 # limit max velocity
 def Limit_maxVelocity(v_x, v_y, v_limit):
+    """Fucntion that checks if the current velocity exceeds the limit and clips it if it does
+
+    Args:
+        v_x (float): Current x velocity
+        v_y (float): Current y velocity
+        v_limit (float): maximum value the velocity may have. 
+
+    Returns:
+        float: checked velocity for x
+        float: checked velocity for y
+    """
     if abs(v_x) > v_limit / 2 or abs(v_y) > v_limit / 2:
         k = v_x * v_x + v_y * v_y
         k = math.sqrt(k)
@@ -54,6 +82,18 @@ def Limit_maxVelocity(v_x, v_y, v_limit):
     return v_x, v_y
 
 def Unit_speed(r, gx, gy):
+    """Compute normalized directional vectors toward the agent's personal best
+    and the global best from its current position.
+
+    Args:
+        r (Agent): instance of Agent
+        gx (float): x coordinate of the global best
+        gy (float): y cooridnate of the global best
+
+    Returns:
+        tuple: Unit vectors toward personal best (xp, yp) and global best (xg, yg).
+  
+    """
     xp = r.px - r.x
     xg = gx - r.x
     yp = r.py - r.y
@@ -69,7 +109,17 @@ def Unit_speed(r, gx, gy):
     return xp, yp, xg, yg
 
 def is_collision(grid, x, y, radius):
-    """Check if a point (x,y) with given radius collides with any obstacle"""
+    """Check if a point (x,y) with given radius collides with any obstacle
+
+    Args:
+        grid (Grid): instance of Grid
+        x (float): x coordinate of the agent
+        y (float): y coordinate of the agent
+        radius (int): sensing range of the agent
+
+    Returns:
+        Bool: True if there is a collision, false otherwise
+    """
     # Check bounds
     if x - radius < 0 or x + radius > grid.width or y - radius < 0 or y + radius > grid.height:
         return True
@@ -91,8 +141,18 @@ def is_collision(grid, x, y, radius):
     return False
 
 def is_collision_agents(agent_self, grid, x, y, radius):
-    """Check if a point (x,y) with given radius collides with any obstacle"""
-    # Check bounds
+    """Check if a point (x,y) with given radius collides with any agent
+
+    Args:
+        agent_self (Agent): instacne of class Agent
+        grid (Grid): instance of a grid
+        x (float): x coordinate of the agent
+        y (float): y coordinate of the agent
+        radius (int): sensing range of the agent
+
+    Returns:
+        Bool: True if there is a collision, false otherwise
+    """    # Check bounds
     if x - radius < 0 or x + radius > grid.width or y - radius < 0 or y + radius > grid.height:
         return True
 
@@ -119,6 +179,18 @@ def is_collision_agents(agent_self, grid, x, y, radius):
 
 # Avoid obstacle
 def avoidObstacle(r, v_x, v_y, V_LIMIT, grid):
+    """Function that computes how to avoid the obstacle
+
+    Args:
+        r (Agent): instance of Agent
+        v_x (float): x velocity
+        v_y (float): y velocity
+        V_LIMIT (float): maximum velocity
+        grid (Grid): instance of a grid
+
+    Returns:
+        float: New computed values to avoid obstacles
+    """
     # x,y direction
     angle_list = [10, -10, 20, -20, 30, -30, 40, -40, 50, -50, 60, -60, 70, -70, 80, -80, 90, -90, 100, -100,
                     110, -110, 120, -120, 130, -130, 140, -140, 150, -150, 160, -160, 170, -170, 180, -180]
@@ -138,6 +210,15 @@ def avoidObstacle(r, v_x, v_y, V_LIMIT, grid):
 
 # Find the farthest & emptiest area
 def find_FarthestAndEmptiestArea(area_id, Out_list):
+    """Find the area that has yet to be explored
+
+    Args:
+        area_id (int): current area
+        Out_list (list): list containing the differnt areas
+
+    Returns:
+        int: area that has to be traveled to
+    """
     # Get current robot's position area
     far_area_id = 0
     tmp_d = 0
@@ -154,6 +235,14 @@ def find_FarthestAndEmptiestArea(area_id, Out_list):
     return far_area_id
 
 def update_best_avg(agents):
+    """Function that updates the best average among the agents
+
+    Args:
+        agents (list): list containing instances of Agent
+
+    Returns:
+        float: best average among the agents
+    """
     best_avg = 0
     for agent in agents:
         r = agent
@@ -162,6 +251,21 @@ def update_best_avg(agents):
     return best_avg
 
 def init_E2RPSO(step_size, grid):
+    """Init function for the E2RPSO algorithm
+
+    Args:
+        step_size (float): Maximum velocity
+        grid (Grid): instance of Grid
+
+    Returns:
+            list: Out list
+            list: List of agent objects after initialization.
+            list: List of x-coordinates of goal positions.
+            list: List of y-coordinates of goal positions.
+            float: x-coordinate of the global best position.
+            float: y-coordinate of the global best position.
+            float: Best (lowest) fitness value found globally.
+    """
     Out_list = []
     # init Map area exploration rate
     for _ in range(int(grid.width / 10) * int(grid.height / 10)):
