@@ -7,21 +7,6 @@ import random
 import E2RPSO_util
 from Continuous_grid import  visualize_grid
 
-'''
-function E2RPSO
-    main function of PSO
-
-    parameter:
-        Side        : the map size
-        Size        : num of robots
-        Goal_num    : num of goal
-
-    returns
-        Iteration time, goal num found
-
-
-'''
-
 def check_target_detection(grid):
     """Check if an agent has detected any target
 

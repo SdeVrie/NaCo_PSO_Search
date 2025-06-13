@@ -6,21 +6,6 @@ from Continuous_grid import visualize_grid
 import random
 import RDPSO_util
 
-'''
-    function RDPSO
-    main function of PSO
-    
-    parameter:
-    Side        : the map size
-    Size        : num of robots
-    Goal_num    : num of goal
-    
-    returns
-    Iteration time, goal num found
-    
-    
-    '''
-
 def check_target_detection(grid):
     """Check if an agent has detected any target
 
